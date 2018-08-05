@@ -7,10 +7,15 @@ export default {
 	secure: '',
 	expiry: 365,
 	types: {
+		'necessary': {
+			checked: true,
+			disabled: true,
+			fns: []
+		},
 		'preference': {
-			enabled: true,
+			checked: true,
 			fns: [
-				(settings, consent) => { document.cookie = writeCookie(settings, consent); }
+				model => { document.cookie = writeCookie(model); }
 			]
 		}
 	},
@@ -18,9 +23,13 @@ export default {
 		banner: 'cookie-banner',
 		btn: 'cookie-banner__btn',
 		field: 'cookie-banner__field',
-		changeBtn: 'cookie-banner__change'
+		updateBtnContainer: 'cookie-banner__update',
+		updateBtn: 'cookie-banner__update-btn'
 	},
-	template(model){
+	updateBtnTemplate(model){
+		return `<button class="${model.classNames.updateBtn}">Update cookie preferences</button>`
+	},
+	bannerTemplate(model){
 		return `<section role="dialog" aria-live="polite" aria-label="Cookie consent" aria-describedby="cookie-banner__desc" class="${model.classNames.banner}">
 			<!--googleoff: all-->
 			<div class="small-12" id="cookie-banner__desc">
@@ -29,12 +38,8 @@ export default {
 				of cookies you consent to, or accept our recommended settings.
 				<a class="cookie-banner__link" rel="noopener noreferrer nofollow" href="/cookies/">Find out more</a> about the cookies we use before you consent.</p>
 				<ul class="cookie-banner__list lister push--bottom large-10">
-					<li class="cookie-banner__list-item">
-						<input id="cookie-banner__necessary" class="${model.classNames.field}" value="necessary" type="checkbox" checked disabled> 
-						<label class="cookie-banner__label gamma" for="cookie-banner_necessary">Necessary cookies</label>
-					</li>
 					${Object.keys(model.types).map(type => `<li class="cookie-banner__list-item">
-						<input id="cookie-banner__${type.split(' ')[0].replace(' ', '-')}" class="${model.classNames.field}" value="${type}" type="checkbox"${model.types[type].enabled ? ` checked` : ''}> 
+						<input id="cookie-banner__${type.split(' ')[0].replace(' ', '-')}" class="${model.classNames.field}" value="${type}" type="checkbox"${model.types[type].checked ? ` checked` : ''}${model.types[type].disabled ? ` disabled` : ''}> 
 						<label class="cookie-banner__label gamma" for="cookie-banner__${type.split(' ')[0].replace(' ', '-')}">${type.substr(0, 1).toUpperCase()}${type.substr(1)} cookies</label>
 					</li>`).join('')}
 				</ul>
@@ -42,5 +47,6 @@ export default {
 			<button class="${model.classNames.btn}">Continue</button>
 			<!--googleon: all-->
 		</section>`;
-	}
+	},
+	consent: {}
 };

@@ -1,6 +1,6 @@
 /**
  * @name storm-cookie-banner: 
- * @version 0.1.0: Sun, 05 Aug 2018 08:48:06 GMT
+ * @version 0.1.0: Sun, 05 Aug 2018 21:49:22 GMT
  * @author stormid
  * @license MIT
  */
@@ -13,7 +13,7 @@ export default {
             if(acc[curr]) {
                 acc[curr] = Object.assign({}, acc[curr], {
                     fns: acc[curr].fns.concat(opts.types[curr].fns),
-                    enabled: opts.types[curr].enabled
+                    checked: opts.types[curr].checked
                 });
             }  else acc[curr] = opts.types[curr];
             return acc;

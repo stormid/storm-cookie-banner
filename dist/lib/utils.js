@@ -13,16 +13,16 @@ export const cookiesEnabled = () => {
       }
 };
 
-export const writeCookie = (settings, preferences) => [
-    `${settings.name}=${JSON.stringify(preferences)};`,
-    `expires=${(new Date(new Date().getTime() + (settings.expiry*24*60*60*1000))).toGMTString()};`,
-    `path=${settings.path};`,
-    settings.domain ? `domain=${settings.domain}` : '',
-    settings.secure ? `secure=${settings.secure}` : ''
+export const writeCookie = model => [
+    `${model.name}=${JSON.stringify(model.consent)};`,
+    `expires=${(new Date(new Date().getTime() + (model.expiry*24*60*60*1000))).toGMTString()};`,
+    `path=${model.path};`,
+    model.domain ? `domain=${model.domain}` : '',
+    model.secure ? `secure=${model.secure}` : ''
 ].join('');
 
-export const readCookie = settings => {
-    const cookie = document.cookie.split('; ').map(part => ({ name: part.split('=')[0], value: part.split('=')[1] })).filter(part => part.name === settings.name)[0];
+export const readCookie = model => {
+    const cookie = document.cookie.split('; ').map(part => ({ name: part.split('=')[0], value: part.split('=')[1] })).filter(part => part.name === model.name)[0];
     return cookie !== undefined ? cookie : false;
 };
 
@@ -33,5 +33,18 @@ export const GTMLoad = code => {
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer', code);
 }
+
+export const composeModel = model => {
+    return Object.assign({}, model, {
+        types: Object.keys(model.types).reduce((acc, type) => {
+            if(model.consent[type] !== undefined) {
+                acc[type] = Object.assign({}, model.types[type], {
+                    checked: model.consent[type]
+                });
+            } else acc[type] = model.types[type];
+            return acc;
+        }, {})
+    })
+};
 
 export const shouldExecute = e => (!!e.keyCode && !TRIGGER_KEYCODES.includes(e.keyCode)) || !(e.which === 3 || e.button === 2);

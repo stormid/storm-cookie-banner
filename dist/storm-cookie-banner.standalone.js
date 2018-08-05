@@ -1,6 +1,6 @@
 /**
  * @name storm-cookie-banner: 
- * @version 0.1.0: Sun, 05 Aug 2018 08:48:06 GMT
+ * @version 0.1.0: Sun, 05 Aug 2018 21:49:23 GMT
  * @author stormid
  * @license MIT
  */
@@ -39,17 +39,30 @@ var cookiesEnabled = function cookiesEnabled() {
     }
 };
 
-var writeCookie = function writeCookie(settings, preferences) {
-    return [settings.name + '=' + JSON.stringify(preferences) + ';', 'expires=' + new Date(new Date().getTime() + settings.expiry * 24 * 60 * 60 * 1000).toGMTString() + ';', 'path=' + settings.path + ';', settings.domain ? 'domain=' + settings.domain : '', settings.secure ? 'secure=' + settings.secure : ''].join('');
+var writeCookie = function writeCookie(model) {
+    return [model.name + '=' + JSON.stringify(model.consent) + ';', 'expires=' + new Date(new Date().getTime() + model.expiry * 24 * 60 * 60 * 1000).toGMTString() + ';', 'path=' + model.path + ';', model.domain ? 'domain=' + model.domain : '', model.secure ? 'secure=' + model.secure : ''].join('');
 };
 
-var readCookie = function readCookie(settings) {
+var readCookie = function readCookie(model) {
     var cookie = document.cookie.split('; ').map(function (part) {
         return { name: part.split('=')[0], value: part.split('=')[1] };
     }).filter(function (part) {
-        return part.name === settings.name;
+        return part.name === model.name;
     })[0];
     return cookie !== undefined ? cookie : false;
+};
+
+var composeModel = function composeModel(model) {
+    return Object.assign({}, model, {
+        types: Object.keys(model.types).reduce(function (acc, type) {
+            if (model.consent[type] !== undefined) {
+                acc[type] = Object.assign({}, model.types[type], {
+                    checked: model.consent[type]
+                });
+            } else acc[type] = model.types[type];
+            return acc;
+        }, {})
+    });
 };
 
 var shouldExecute = function shouldExecute(e) {
@@ -63,10 +76,15 @@ var defaults = {
     secure: '',
     expiry: 365,
     types: {
+        'necessary': {
+            checked: true,
+            disabled: true,
+            fns: []
+        },
         'preference': {
-            enabled: true,
-            fns: [function (settings, consent) {
-                document.cookie = writeCookie(settings, consent);
+            checked: true,
+            fns: [function (model) {
+                document.cookie = writeCookie(model);
             }]
         }
     },
@@ -74,60 +92,71 @@ var defaults = {
         banner: 'cookie-banner',
         btn: 'cookie-banner__btn',
         field: 'cookie-banner__field',
-        changeBtn: 'cookie-banner__change'
+        updateBtnContainer: 'cookie-banner__update',
+        updateBtn: 'cookie-banner__update-btn'
     },
-    template: function template(model) {
-        return '<section role="dialog" aria-live="polite" aria-label="Cookie consent" aria-describedby="cookie-banner__desc" class="' + model.classNames.banner + '">\n\t\t\t<!--googleoff: all-->\n\t\t\t<div class="small-12" id="cookie-banner__desc">\n\t\t\t\t<h1 class="cookie-banner__heading">This website uses cookies.</h1>\n\t\t\t\t<p class="cookie-banner__text gamma">We use cookies to analyse our traffic and to provide social media features. You can choose which categories\n\t\t\t\tof cookies you consent to, or accept our recommended settings.\n\t\t\t\t<a class="cookie-banner__link" rel="noopener noreferrer nofollow" href="/cookies/">Find out more</a> about the cookies we use before you consent.</p>\n\t\t\t\t<ul class="cookie-banner__list lister push--bottom large-10">\n\t\t\t\t\t<li class="cookie-banner__list-item">\n\t\t\t\t\t\t<input id="cookie-banner__necessary" class="' + model.classNames.field + '" value="necessary" type="checkbox" checked disabled> \n\t\t\t\t\t\t<label class="cookie-banner__label gamma" for="cookie-banner_necessary">Necessary cookies</label>\n\t\t\t\t\t</li>\n\t\t\t\t\t' + Object.keys(model.types).map(function (type) {
-            return '<li class="cookie-banner__list-item">\n\t\t\t\t\t\t<input id="cookie-banner__' + type.split(' ')[0].replace(' ', '-') + '" class="' + model.classNames.field + '" value="' + type + '" type="checkbox"' + (model.types[type].enabled ? ' checked' : '') + '> \n\t\t\t\t\t\t<label class="cookie-banner__label gamma" for="cookie-banner__' + type.split(' ')[0].replace(' ', '-') + '">' + type.substr(0, 1).toUpperCase() + type.substr(1) + ' cookies</label>\n\t\t\t\t\t</li>';
+    updateBtnTemplate: function updateBtnTemplate(model) {
+        return '<button class="' + model.classNames.updateBtn + '">Update cookie preferences</button>';
+    },
+    bannerTemplate: function bannerTemplate(model) {
+        return '<section role="dialog" aria-live="polite" aria-label="Cookie consent" aria-describedby="cookie-banner__desc" class="' + model.classNames.banner + '">\n\t\t\t<!--googleoff: all-->\n\t\t\t<div class="small-12" id="cookie-banner__desc">\n\t\t\t\t<h1 class="cookie-banner__heading">This website uses cookies.</h1>\n\t\t\t\t<p class="cookie-banner__text gamma">We use cookies to analyse our traffic and to provide social media features. You can choose which categories\n\t\t\t\tof cookies you consent to, or accept our recommended settings.\n\t\t\t\t<a class="cookie-banner__link" rel="noopener noreferrer nofollow" href="/cookies/">Find out more</a> about the cookies we use before you consent.</p>\n\t\t\t\t<ul class="cookie-banner__list lister push--bottom large-10">\n\t\t\t\t\t' + Object.keys(model.types).map(function (type) {
+            return '<li class="cookie-banner__list-item">\n\t\t\t\t\t\t<input id="cookie-banner__' + type.split(' ')[0].replace(' ', '-') + '" class="' + model.classNames.field + '" value="' + type + '" type="checkbox"' + (model.types[type].checked ? ' checked' : '') + (model.types[type].disabled ? ' disabled' : '') + '> \n\t\t\t\t\t\t<label class="cookie-banner__label gamma" for="cookie-banner__' + type.split(' ')[0].replace(' ', '-') + '">' + type.substr(0, 1).toUpperCase() + type.substr(1) + ' cookies</label>\n\t\t\t\t\t</li>';
         }).join('') + '\n\t\t\t\t</ul>\n\t\t\t</div>\n\t\t\t<button class="' + model.classNames.btn + '">Continue</button>\n\t\t\t<!--googleon: all-->\n\t\t</section>';
-    }
+    },
+
+    consent: {}
 };
 
-var initUI = function initUI(settings) {
-    document.body.firstElementChild.insertAdjacentHTML('beforebegin', settings.template(settings));
-    var fields = [].slice.call(document.querySelectorAll('.' + settings.classNames.field));
-    var banner = document.querySelector('.' + settings.classNames.banner);
-    var btn = document.querySelector('.' + settings.classNames.btn);
+var apply = function apply(model) {
+    Object.keys(model.consent).forEach(function (key) {
+        model.consent[key] && model.types[key].fns.forEach(function (fn) {
+            return fn(model);
+        });
+    });
+};
+
+var initBanner = function initBanner(model) {
+    console.log(model);
+    document.body.firstElementChild.insertAdjacentHTML('beforebegin', model.bannerTemplate(composeModel(model)));
+    var fields = [].slice.call(document.querySelectorAll('.' + model.classNames.field));
+    var banner = document.querySelector('.' + model.classNames.banner);
+    var btn = document.querySelector('.' + model.classNames.btn);
 
     TRIGGER_EVENTS.forEach(function (ev) {
         btn.addEventListener(ev, function (e) {
             if (!shouldExecute(e)) return;
-            applyConsent(settings, fields.reduce(function (acc, field) {
-                return acc[field.value] = field.checked, acc;
-            }, {}));
+            model = Object.assign({}, model, { consent: fields.reduce(function (acc, field) {
+                    return acc[field.value] = field.checked, acc;
+                }, {}) });
+            apply(model);
             banner.parentNode.removeChild(banner);
+            initUpdateBtn(model);
         });
     });
 };
 
-var applyConsent = function applyConsent(settings, consent) {
-    Object.keys(consent).forEach(function (key) {
-        consent[key] && settings.types[key].fns.forEach(function (fn) {
-            return fn(settings, consent);
+var initUpdateBtn = function initUpdateBtn(model) {
+    var updateBtnContainer = document.querySelector('.' + model.classNames.updateBtnContainer);
+    if (!updateBtnContainer) return;
+    var updateBtn = document.querySelector('.' + model.classNames.updateBtn);
+    if (updateBtn) return updateBtn.removeAttribute('disabled');
+    updateBtnContainer.innerHTML = model.updateBtnTemplate(model);
+    TRIGGER_EVENTS.forEach(function (ev) {
+        updateBtnContainer.addEventListener(ev, function (e) {
+            if (!shouldExecute(e) || !e.target.classList.contains(model.classNames.updateBtn)) return;
+            initBanner(model);
+            document.querySelector('.' + model.classNames.updateBtn).setAttribute('disabled', 'disabled');
         });
     });
 };
 
-var factory = function factory(settings) {
+var factory = function factory(model) {
     if (!cookiesEnabled()) return;
-    console.log(settings);
-
-    var cookies = readCookie(settings);
-
-    if (!cookies) initUI(settings);else {
-        applyConsent(settings, JSON.parse(cookies.value));
-
-        /*
-        Add change button
-        const btn = document.querySelector(`.${settings.classNames.changeBtn}`);
-         TRIGGER_EVENTS.forEach(ev => {
-            btn.addEventListener(ev, e => {
-                if(!shouldExecute(e)) return;     
-                applyConsent(settings, fields.reduce((acc, field) => { return acc[field.value] = field.checked, acc }, {}));
-                banner.parentNode.removeChild(banner);
-            });
-        });
-         */
+    var cookies = readCookie(model);
+    if (!cookies) initBanner(model);else {
+        model = Object.assign({}, model, { consent: JSON.parse(cookies.value) });
+        apply(model);
+        initUpdateBtn(model);
     }
 };
 
@@ -138,7 +167,7 @@ var index = {
                 if (acc[curr]) {
                     acc[curr] = Object.assign({}, acc[curr], {
                         fns: acc[curr].fns.concat(opts.types[curr].fns),
-                        enabled: opts.types[curr].enabled
+                        checked: opts.types[curr].checked
                     });
                 } else acc[curr] = opts.types[curr];
                 return acc;
