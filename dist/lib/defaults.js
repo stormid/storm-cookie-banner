@@ -17,7 +17,8 @@ export default {
 	classNames: {
 		banner: 'cookie-banner',
 		btn: 'cookie-banner__btn',
-		field: 'cookie-banner__field'
+		field: 'cookie-banner__field',
+		changeBtn: 'cookie-banner__change'
 	},
 	template(model){
 		return `<section role="dialog" aria-live="polite" aria-label="Cookie consent" aria-describedby="cookie-banner__desc" class="${model.classNames.banner}">
@@ -32,9 +33,9 @@ export default {
 						<input id="cookie-banner__necessary" class="${model.classNames.field}" value="necessary" type="checkbox" checked disabled> 
 						<label class="cookie-banner__label gamma" for="cookie-banner_necessary">Necessary cookies</label>
 					</li>
-					${model.types.map(type => `<li class="cookie-banner__list-item">
-						<input id="cookie-banner__${type.name.split(' ')[0].replace(' ', '-')}" class="${model.classNames.field}" value="${type.name}" type="checkbox"${type.enabled ? ` checked` : ''}> 
-						<label class="cookie-banner__label gamma" for="cookie-banner__${type.name.split(' ')[0].replace(' ', '-')}">${type.name.substr(0, 1).toUpperCase()}${type.name.substr(1)} cookies</label>
+					${Object.keys(model.types).map(type => `<li class="cookie-banner__list-item">
+						<input id="cookie-banner__${type.split(' ')[0].replace(' ', '-')}" class="${model.classNames.field}" value="${type}" type="checkbox"${model.types[type].enabled ? ` checked` : ''}> 
+						<label class="cookie-banner__label gamma" for="cookie-banner__${type.split(' ')[0].replace(' ', '-')}">${type.substr(0, 1).toUpperCase()}${type.substr(1)} cookies</label>
 					</li>`).join('')}
 				</ul>
 			</div>

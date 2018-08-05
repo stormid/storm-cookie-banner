@@ -1,6 +1,6 @@
 /**
  * @name storm-cookie-banner: 
- * @version 0.1.0: Thu, 02 Aug 2018 21:30:28 GMT
+ * @version 0.1.0: Sun, 05 Aug 2018 08:48:06 GMT
  * @author stormid
  * @license MIT
  */
@@ -11,23 +11,12 @@ export default {
     init: opts => factory(Object.assign({}, defaults, opts, {
         types: Object.keys(opts.types).reduce((acc, curr) => {
             if(acc[curr]) {
-                return Object.assign({}, acc, { 
-                    [curr]: Object.assign({}, acc[curr], {
-                        fns: acc[curr].fns.concat(opts.types[curr.name].fns)
-                    })
+                acc[curr] = Object.assign({}, acc[curr], {
+                    fns: acc[curr].fns.concat(opts.types[curr].fns),
+                    enabled: opts.types[curr].enabled
                 });
-            }  else return Object.assign({}, acc, { [curr]: opts.types[curr] });
+            }  else acc[curr] = opts.types[curr];
+            return acc;
         }, defaults.types)
-        // types: opts.types.reduce((acc, curr) => {
-        //     const match = acc.filter(type => type.name === curr.name);
-        //     if(match.length === 0) acc.push(curr);
-        //     else {
-        //         match[0] = Object.assign({}, match[0], {
-        //             fns: match[0].fns.push(curr.fns),
-        //             enabled: curr.enabled === match[0].enabled ? match[0].enabled : !match[0].enabled
-        //         })
-        //     }
-        //     return acc;
-        // }, defaults.types)
     }))
 };
