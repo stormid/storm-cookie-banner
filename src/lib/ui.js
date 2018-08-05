@@ -12,7 +12,7 @@ export const initBanner = model => {
     TRIGGER_EVENTS.forEach(ev => {
         btn.addEventListener(ev, e => {
             if(!shouldExecute(e)) return;
-            model = Object.assign({}, model, { consent: fields.reduce((acc, field) => { return acc[field.value] = field.checked, acc }, {}) });
+            model = Object.assign({}, model, { consent: fields.reduce((acc, field) => { return acc[field.value] = field.checked, acc }, {}) });     
             apply(model);
             banner.parentNode.removeChild(banner);
             initUpdateBtn(model);
