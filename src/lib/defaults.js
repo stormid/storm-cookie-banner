@@ -1,4 +1,4 @@
-import { writeCookie } from './utils'; 
+import { writeCookie, GTMLoad } from './utils'; 
 
 export default {
 	name: 'CookiePreferences',
