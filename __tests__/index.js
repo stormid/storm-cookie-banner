@@ -1,21 +1,34 @@
-import Map from '../src';
+import CookieBanner from '../src';
 
 test('', () => {
     // Set up our document body
-    document.body.innerHTML = `<div id="js-map"></div>`;
+    document.body.innerHTML = ``;
 
-    Map.init('js-map', { 
-        subscriptionKey: '',
-        zoom: 11,
-        center: [55.972247, -3.171403],
-        tileLayers: [
-            {
-                url:  'https://atlas.microsoft.com/map/tile/png?api-version=1.0&layer=basic&style=main&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}'
+    CookieBanner.init({
+        types: {
+            'necessary': {
+                fns: [
+                    () => { console.log('Necessary fn'); },
+                ]
+            },
+            'preference': {
+                checked: true,
+                fns: [
+                    () => { console.log('Preference fn'); },
+                ]
+            },
+            'performance': {
+                checked: true,
+                fns: [
+                    () => { console.log('Performance fn'); }
+                ]
+            },
+            'advertising and marketing': {
+                checked: false,
+                fns: [
+                    () => { console.log('Advertising and marketing fn'); }
+                ]
             }
-        ],
-        icon: {
-            url: '../map-marker.svg',
-            size: [25, 40]
         }
     });
     
