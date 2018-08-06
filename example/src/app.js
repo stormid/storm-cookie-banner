@@ -9,7 +9,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 ]
             },
             'preference': {
-                checked: false,
+                checked: true,
                 fns: [
                     () => { console.log('Preference fn'); },
                 ]

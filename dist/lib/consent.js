@@ -1,5 +1,5 @@
-export const apply = model => {
-    Object.keys(model.consent).forEach(key => {
-        model.consent[key] && model.types[key].fns.forEach(fn => fn(model));
+export const apply = state => {
+    Object.keys(state.consent).forEach(key => {
+        state.consent[key] && state.settings.types[key].fns.forEach(fn => fn(state));
     });
 };

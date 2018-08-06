@@ -1,6 +1,6 @@
 /**
  * @name storm-cookie-banner: 
- * @version 0.1.0: Sun, 05 Aug 2018 21:49:23 GMT
+ * @version 0.1.0: Mon, 06 Aug 2018 09:52:15 GMT
  * @author stormid
  * @license MIT
  */
@@ -39,27 +39,27 @@ var cookiesEnabled = function cookiesEnabled() {
     }
 };
 
-var writeCookie = function writeCookie(model) {
-    return [model.name + '=' + JSON.stringify(model.consent) + ';', 'expires=' + new Date(new Date().getTime() + model.expiry * 24 * 60 * 60 * 1000).toGMTString() + ';', 'path=' + model.path + ';', model.domain ? 'domain=' + model.domain : '', model.secure ? 'secure=' + model.secure : ''].join('');
+var writeCookie = function writeCookie(state) {
+    return [state.settings.name + '=' + JSON.stringify(state.consent) + ';', 'expires=' + new Date(new Date().getTime() + state.settings.expiry * 24 * 60 * 60 * 1000).toGMTString() + ';', 'path=' + state.settings.path + ';', state.settings.domain ? 'domain=' + state.settings.domain : '', state.settings.secure ? 'secure=' + state.settings.secure : ''].join('');
 };
 
-var readCookie = function readCookie(model) {
+var readCookie = function readCookie(settings) {
     var cookie = document.cookie.split('; ').map(function (part) {
         return { name: part.split('=')[0], value: part.split('=')[1] };
     }).filter(function (part) {
-        return part.name === model.name;
+        return part.name === settings.name;
     })[0];
     return cookie !== undefined ? cookie : false;
 };
 
-var composeModel = function composeModel(model) {
-    return Object.assign({}, model, {
-        types: Object.keys(model.types).reduce(function (acc, type) {
-            if (model.consent[type] !== undefined) {
-                acc[type] = Object.assign({}, model.types[type], {
-                    checked: model.consent[type]
+var composeUpdateUIModel = function composeUpdateUIModel(state) {
+    return Object.assign({}, state.settings, {
+        types: Object.keys(state.settings.types).reduce(function (acc, type) {
+            if (state.consent[type] !== undefined) {
+                acc[type] = Object.assign({}, state.settings.types[type], {
+                    checked: state.consent[type] !== undefined ? state.consent[type] : state.settings.types[type].checked
                 });
-            } else acc[type] = model.types[type];
+            } else acc[type] = state.settings.types[type];
             return acc;
         }, {})
     });
@@ -107,57 +107,88 @@ var defaults = {
     consent: {}
 };
 
-var apply = function apply(model) {
-    Object.keys(model.consent).forEach(function (key) {
-        model.consent[key] && model.types[key].fns.forEach(function (fn) {
-            return fn(model);
+var apply = function apply(state) {
+    Object.keys(state.consent).forEach(function (key) {
+        state.consent[key] && state.settings.types[key].fns.forEach(function (fn) {
+            return fn(state);
         });
     });
 };
 
-var initBanner = function initBanner(model) {
-    console.log(model);
-    document.body.firstElementChild.insertAdjacentHTML('beforebegin', model.bannerTemplate(composeModel(model)));
-    var fields = [].slice.call(document.querySelectorAll('.' + model.classNames.field));
-    var banner = document.querySelector('.' + model.classNames.banner);
-    var btn = document.querySelector('.' + model.classNames.btn);
-
-    TRIGGER_EVENTS.forEach(function (ev) {
-        btn.addEventListener(ev, function (e) {
-            if (!shouldExecute(e)) return;
-            model = Object.assign({}, model, { consent: fields.reduce(function (acc, field) {
-                    return acc[field.value] = field.checked, acc;
-                }, {}) });
-            apply(model);
-            banner.parentNode.removeChild(banner);
-            initUpdateBtn(model);
-        });
-    });
+var initialState = function initialState(state, data) {
+    return Object.assign({}, state, data);
+};
+var setConsent = function setConsent(state, data) {
+    return Object.assign({}, state, data);
+};
+var updateConsent = function updateConsent(state, data) {
+    return Object.assign({}, state, data);
 };
 
-var initUpdateBtn = function initUpdateBtn(model) {
-    var updateBtnContainer = document.querySelector('.' + model.classNames.updateBtnContainer);
-    if (!updateBtnContainer) return;
-    var updateBtn = document.querySelector('.' + model.classNames.updateBtn);
-    if (updateBtn) return updateBtn.removeAttribute('disabled');
-    updateBtnContainer.innerHTML = model.updateBtnTemplate(model);
-    TRIGGER_EVENTS.forEach(function (ev) {
-        updateBtnContainer.addEventListener(ev, function (e) {
-            if (!shouldExecute(e) || !e.target.classList.contains(model.classNames.updateBtn)) return;
-            initBanner(model);
-            document.querySelector('.' + model.classNames.updateBtn).setAttribute('disabled', 'disabled');
+var initBanner = function initBanner(Store) {
+    return function (state) {
+        document.body.firstElementChild.insertAdjacentHTML('beforebegin', state.settings.bannerTemplate(composeUpdateUIModel(state)));
+        var fields = [].slice.call(document.querySelectorAll('.' + state.settings.classNames.field));
+        var banner = document.querySelector('.' + state.settings.classNames.banner);
+        var btn = document.querySelector('.' + state.settings.classNames.btn);
+
+        TRIGGER_EVENTS.forEach(function (ev) {
+            btn.addEventListener(ev, function (e) {
+                if (!shouldExecute(e)) return;
+                Store.update(setConsent, { consent: fields.reduce(function (acc, field) {
+                        return acc[field.value] = field.checked, acc;
+                    }, {}) }, [apply, initUpdateBtn(Store), function () {
+                    banner.parentNode.removeChild(banner);
+                }]);
+            });
         });
-    });
+    };
 };
 
-var factory = function factory(model) {
+var initUpdateBtn = function initUpdateBtn(Store) {
+    return function (state) {
+        var updateBtnContainer = document.querySelector('.' + state.settings.classNames.updateBtnContainer);
+        if (!updateBtnContainer) return;
+        var updateBtn = document.querySelector('.' + state.settings.classNames.updateBtn);
+        if (updateBtn) return updateBtn.removeAttribute('disabled');
+        updateBtnContainer.innerHTML = state.settings.updateBtnTemplate(state.settings);
+
+        TRIGGER_EVENTS.forEach(function (ev) {
+            document.querySelector('.' + state.settings.classNames.updateBtn).addEventListener(ev, function (e) {
+                if (!shouldExecute(e)) return;
+                Store.update(updateConsent, {}, [initBanner(Store), function () {
+                    e.target.setAttribute('disabled', 'disabled');
+                }]);
+            });
+        });
+    };
+};
+
+var CreateStore = function CreateStore() {
+    return {
+        state: {},
+        update: function update(reducer, nextState) {
+            var _this = this;
+
+            var effects = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+
+            this.state = reducer(this.state, nextState);
+            if (effects.length > 0) effects.forEach(function (effect) {
+                effect(_this.state);
+            });
+        },
+        getState: function getState() {
+            return this.state;
+        }
+    };
+};
+
+var factory = function factory(settings) {
     if (!cookiesEnabled()) return;
-    var cookies = readCookie(model);
-    if (!cookies) initBanner(model);else {
-        model = Object.assign({}, model, { consent: JSON.parse(cookies.value) });
-        apply(model);
-        initUpdateBtn(model);
-    }
+
+    var Store = CreateStore();
+    var cookies = readCookie(settings);
+    Store.update(initialState, { settings: settings, consent: cookies ? JSON.parse(cookies.value) : {} }, !cookies ? [initBanner(Store)] : [apply, initUpdateBtn(Store)]);
 };
 
 var index = {
@@ -167,7 +198,7 @@ var index = {
                 if (acc[curr]) {
                     acc[curr] = Object.assign({}, acc[curr], {
                         fns: acc[curr].fns.concat(opts.types[curr].fns),
-                        checked: opts.types[curr].checked
+                        checked: opts.types[curr].checked !== undefined ? opts.types[curr].checked : defaults.types[curr].checked !== undefined ? defaults.types[curr].checked : false
                     });
                 } else acc[curr] = opts.types[curr];
                 return acc;

@@ -1,36 +1,33 @@
-import { composeModel, shouldExecute } from './utils';
+import { composeUpdateUIModel, shouldExecute } from './utils';
 import { TRIGGER_EVENTS } from './constants';
 import { apply } from './consent';
+import { setConsent, updateConsent } from './reducers';
 
-export const initBanner = model => {
-    console.log(model);
-    document.body.firstElementChild.insertAdjacentHTML('beforebegin', model.bannerTemplate(composeModel(model)));
-    const fields = [].slice.call(document.querySelectorAll(`.${model.classNames.field}`));
-    const banner = document.querySelector(`.${model.classNames.banner}`);
-    const btn = document.querySelector(`.${model.classNames.btn}`);
+export const initBanner = Store => state => {
+    document.body.firstElementChild.insertAdjacentHTML('beforebegin', state.settings.bannerTemplate(composeUpdateUIModel(state)));
+    const fields = [].slice.call(document.querySelectorAll(`.${state.settings.classNames.field}`));
+    const banner = document.querySelector(`.${state.settings.classNames.banner}`);
+    const btn = document.querySelector(`.${state.settings.classNames.btn}`);
 
     TRIGGER_EVENTS.forEach(ev => {
         btn.addEventListener(ev, e => {
             if(!shouldExecute(e)) return;
-            model = Object.assign({}, model, { consent: fields.reduce((acc, field) => { return acc[field.value] = field.checked, acc }, {}) });     
-            apply(model);
-            banner.parentNode.removeChild(banner);
-            initUpdateBtn(model);
+            Store.update(setConsent, { consent: fields.reduce((acc, field) => { return acc[field.value] = field.checked, acc }, {}) }, [apply, initUpdateBtn(Store), () => { banner.parentNode.removeChild(banner); }]);
         });
     });
 };
 
-export const initUpdateBtn = model => {
-    const updateBtnContainer = document.querySelector(`.${model.classNames.updateBtnContainer}`);
+export const initUpdateBtn = Store => state => {
+    const updateBtnContainer = document.querySelector(`.${state.settings.classNames.updateBtnContainer}`);
     if(!updateBtnContainer) return;
-    const updateBtn = document.querySelector(`.${model.classNames.updateBtn}`);
+    const updateBtn = document.querySelector(`.${state.settings.classNames.updateBtn}`);
     if(updateBtn) return updateBtn.removeAttribute('disabled');
-    updateBtnContainer.innerHTML = model.updateBtnTemplate(model);
+    updateBtnContainer.innerHTML = state.settings.updateBtnTemplate(state.settings);
+
     TRIGGER_EVENTS.forEach(ev => {
-        updateBtnContainer.addEventListener(ev, e => {
-            if(!shouldExecute(e) || !e.target.classList.contains(model.classNames.updateBtn)) return;
-            initBanner(model);
-            document.querySelector(`.${model.classNames.updateBtn}`).setAttribute('disabled', 'disabled');
+        document.querySelector(`.${state.settings.classNames.updateBtn}`).addEventListener(ev, e => {
+            if(!shouldExecute(e)) return;
+            Store.update(updateConsent, {}, [ initBanner(Store), () => { e.target.setAttribute('disabled', 'disabled'); }]);
         });
     });
 };

@@ -7,7 +7,7 @@ export default {
             if(acc[curr]) {
                 acc[curr] = Object.assign({}, acc[curr], {
                     fns: acc[curr].fns.concat(opts.types[curr].fns),
-                    checked: opts.types[curr].checked
+                    checked: opts.types[curr].checked !== undefined ? opts.types[curr].checked : defaults.types[curr].checked !== undefined ? defaults.types[curr].checked : false
                 });
             }  else acc[curr] = opts.types[curr];
             return acc;

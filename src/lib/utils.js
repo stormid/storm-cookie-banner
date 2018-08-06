@@ -13,35 +13,35 @@ export const cookiesEnabled = () => {
       }
 };
 
-export const writeCookie = model => [
-    `${model.name}=${JSON.stringify(model.consent)};`,
-    `expires=${(new Date(new Date().getTime() + (model.expiry*24*60*60*1000))).toGMTString()};`,
-    `path=${model.path};`,
-    model.domain ? `domain=${model.domain}` : '',
-    model.secure ? `secure=${model.secure}` : ''
+export const writeCookie = state => [
+    `${state.settings.name}=${JSON.stringify(state.consent)};`,
+    `expires=${(new Date(new Date().getTime() + (state.settings.expiry*24*60*60*1000))).toGMTString()};`,
+    `path=${state.settings.path};`,
+    state.settings.domain ? `domain=${state.settings.domain}` : '',
+    state.settings.secure ? `secure=${state.settings.secure}` : ''
 ].join('');
 
-export const readCookie = model => {
-    const cookie = document.cookie.split('; ').map(part => ({ name: part.split('=')[0], value: part.split('=')[1] })).filter(part => part.name === model.name)[0];
+export const readCookie = settings => {
+    const cookie = document.cookie.split('; ').map(part => ({ name: part.split('=')[0], value: part.split('=')[1] })).filter(part => part.name === settings.name)[0];
     return cookie !== undefined ? cookie : false;
 };
 
-export const GTMLoad = code => {
-    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer', code);
-}
+// export const GTMLoad = code => {
+//     (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+//     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+//     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+//     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+//     })(window,document,'script','dataLayer', code);
+// }
 
-export const composeModel = model => {
-    return Object.assign({}, model, {
-        types: Object.keys(model.types).reduce((acc, type) => {
-            if(model.consent[type] !== undefined) {
-                acc[type] = Object.assign({}, model.types[type], {
-                    checked: model.consent[type]
+export const composeUpdateUIModel = state => {
+    return Object.assign({}, state.settings, {
+        types: Object.keys(state.settings.types).reduce((acc, type) => {
+            if(state.consent[type] !== undefined) {
+                acc[type] = Object.assign({}, state.settings.types[type], {
+                    checked: state.consent[type] !== undefined ? state.consent[type] : state.settings.types[type].checked
                 });
-            } else acc[type] = model.types[type];
+            } else acc[type] = state.settings.types[type];
             return acc;
         }, {})
     })
