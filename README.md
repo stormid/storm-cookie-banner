@@ -24,32 +24,32 @@ CookieBanner.init({
     types: {
         'necessary': {
             fns: [
-                () => { 
-                    //function that depends upon or creates a 'necessary' cookies
+                model => { 
+                    //function that depends upon or creates a 'necessary' cookie
                  }
             ]
         },
         'preference': {
             checked: true, //whether the checkbox shown to the user is checked by default or not
             fns: [ //array of cookie-reliant functions
-                () => { 
-                    //function that depends upon or creates a 'preference' cookies
+                model => { 
+                    //function that depends upon or creates a 'preference' cookie
                  }
             ]
         },
         'performance': {
             checked: true,
             fns: [
-                () => { 
-                    //function that depends upon or creates a 'performance' cookies
+                model => { 
+                    //function that depends upon or creates a 'performance' cookie
                 }
             ]
         },
         'advertising and marketing': {
             checked: false,
             fns: [
-                () => { 
-                    //function that depends upon or creates a 'Advertising and marketing' cookies
+                model => { 
+                    //function that depends upon or creates an 'Advertising and marketing' cookie
                 }
             ]
         }
@@ -62,8 +62,9 @@ import Load from 'storm-load';
 
 Load('/content/js/async/storm-cookie-banner.standalone.js')
     .then(() => {
-        StormCookieBanner.init('.js-tabs');
-    });
+        StormCookieBanner.init({
+	    types: { ... as es6 example }
+	});
 ```
 
 
