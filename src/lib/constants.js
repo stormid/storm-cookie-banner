@@ -3,9 +3,9 @@ export const TRIGGER_EVENTS = window.PointerEvent ? ['pointerup', 'keydown'] : [
 export const TRIGGER_KEYCODES = [13, 32];
 
 export const CLASSNAME = {
-    BANNER: 'cookie-banner',
-    FIELD: 'cookie-banner__field',
-    BTN: 'cookie-banner__btn'
+    BANNER: 'preferences-banner',
+    FIELD: 'preferences-banner__field',
+    BTN: 'preferences-banner__btn'
 };
 
 export const DATA_ATTRIBUTE = {

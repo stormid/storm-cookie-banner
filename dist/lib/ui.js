@@ -1,4 +1,4 @@
-import { composeUpdateUIModel, shouldExecute } from './utils';
+import { composeUpdateUIModel, shouldExecute, writeCookie } from './utils';
 import { TRIGGER_EVENTS } from './constants';
 import { apply } from './consent';
 import { setConsent, updateConsent } from './reducers';
@@ -12,7 +12,25 @@ export const initBanner = Store => state => {
     TRIGGER_EVENTS.forEach(ev => {
         btn.addEventListener(ev, e => {
             if(!shouldExecute(e)) return;
-            Store.update(setConsent, { consent: fields.reduce((acc, field) => { return acc[field.value] = field.checked, acc }, {}) }, [apply, initUpdateBtn(Store), () => { banner.parentNode.removeChild(banner); }]);
+
+            const consent = fields.reduce((acc, field) => { return acc[field.value] = field.checked, acc }, {});
+            Store.update(
+                setConsent,
+                { consent },
+                !consent.performance 
+                ? [ 
+                    writeCookie,
+                    () => { window.setTimeout(() => location.reload(), 60); }
+                ]
+                : [
+                    writeCookie,
+                    apply(state.consent.performance ? 'remain' : 'remove'),
+                    () => { 
+                        banner.parentNode.removeChild(banner);
+                        initUpdateBtn(Store)
+                    }
+                ]
+            );
         });
     });
 };
@@ -21,13 +39,19 @@ export const initUpdateBtn = Store => state => {
     const updateBtnContainer = document.querySelector(`.${state.settings.classNames.updateBtnContainer}`);
     if(!updateBtnContainer) return;
     const updateBtn = document.querySelector(`.${state.settings.classNames.updateBtn}`);
-    if(updateBtn) return updateBtn.removeAttribute('disabled');
-    updateBtnContainer.innerHTML = state.settings.updateBtnTemplate(state.settings);
+    if(updateBtn) updateBtn.removeAttribute('disabled');
+    else updateBtnContainer.innerHTML = state.settings.updateBtnTemplate(state.settings);
+    const handler = e => {
+        if(!shouldExecute(e)) return;
+        Store.update(updateConsent, {}, [ initBanner(Store), () => { 
+            e.target.setAttribute('disabled', 'disabled');
+            TRIGGER_EVENTS.forEach(ev => {
+                e.target.removeEventListener(ev, handler);
+            });
+        }]);
+    };
 
     TRIGGER_EVENTS.forEach(ev => {
-        document.querySelector(`.${state.settings.classNames.updateBtn}`).addEventListener(ev, e => {
-            if(!shouldExecute(e)) return;
-            Store.update(updateConsent, {}, [ initBanner(Store), () => { e.target.setAttribute('disabled', 'disabled'); }]);
-        });
+        document.querySelector(`.${state.settings.classNames.updateBtn}`).addEventListener(ev, handler);
     });
 };

@@ -8,12 +8,6 @@ window.addEventListener('DOMContentLoaded', () => {
                     () => { console.log('Necessary fn'); },
                 ]
             },
-            'preference': {
-                checked: true,
-                fns: [
-                    () => { console.log('Preference fn'); },
-                ]
-            },
             'performance': {
                 checked: true,
                 fns: [

@@ -1,6 +1,6 @@
 /**
  * @name storm-cookie-banner: 
- * @version 0.1.0: Mon, 06 Aug 2018 09:52:15 GMT
+ * @version 0.2.1: Wed, 10 Oct 2018 20:14:13 GMT
  * @author stormid
  * @license MIT
  */
@@ -40,7 +40,7 @@ var cookiesEnabled = function cookiesEnabled() {
 };
 
 var writeCookie = function writeCookie(state) {
-    return [state.settings.name + '=' + JSON.stringify(state.consent) + ';', 'expires=' + new Date(new Date().getTime() + state.settings.expiry * 24 * 60 * 60 * 1000).toGMTString() + ';', 'path=' + state.settings.path + ';', state.settings.domain ? 'domain=' + state.settings.domain : '', state.settings.secure ? 'secure=' + state.settings.secure : ''].join('');
+    return document.cookie = [state.settings.name + '=' + JSON.stringify(Object.assign({}, state.consent, { intent: state.intent })) + ';', 'expires=' + new Date(new Date().getTime() + state.settings.expiry * 24 * 60 * 60 * 1000).toGMTString() + ';', 'path=' + state.settings.path + ';', state.settings.domain ? 'domain=' + state.settings.domain : '', state.settings.secure ? 'secure' : ''].join('');
 };
 
 var readCookie = function readCookie(settings) {
@@ -73,46 +73,45 @@ var defaults = {
     name: 'CookiePreferences',
     path: '/',
     domain: '',
-    secure: '',
+    secure: true,
     expiry: 365,
     types: {
         'necessary': {
             checked: true,
             disabled: true,
             fns: []
-        },
-        'preference': {
-            checked: true,
-            fns: [function (model) {
-                document.cookie = writeCookie(model);
-            }]
         }
     },
+    policyURL: '/cookie-policy',
     classNames: {
-        banner: 'cookie-banner',
-        btn: 'cookie-banner__btn',
-        field: 'cookie-banner__field',
-        updateBtnContainer: 'cookie-banner__update',
-        updateBtn: 'cookie-banner__update-btn'
+        banner: 'preferences-banner',
+        btn: 'preferences-banner__btn',
+        field: 'preferences-banner__field',
+        updateBtnContainer: 'preferences-banner__update',
+        updateBtn: 'preferences-banner__update-btn'
     },
     updateBtnTemplate: function updateBtnTemplate(model) {
         return '<button class="' + model.classNames.updateBtn + '">Update cookie preferences</button>';
     },
     bannerTemplate: function bannerTemplate(model) {
-        return '<section role="dialog" aria-live="polite" aria-label="Cookie consent" aria-describedby="cookie-banner__desc" class="' + model.classNames.banner + '">\n\t\t\t<!--googleoff: all-->\n\t\t\t<div class="small-12" id="cookie-banner__desc">\n\t\t\t\t<h1 class="cookie-banner__heading">This website uses cookies.</h1>\n\t\t\t\t<p class="cookie-banner__text gamma">We use cookies to analyse our traffic and to provide social media features. You can choose which categories\n\t\t\t\tof cookies you consent to, or accept our recommended settings.\n\t\t\t\t<a class="cookie-banner__link" rel="noopener noreferrer nofollow" href="/cookies/">Find out more</a> about the cookies we use before you consent.</p>\n\t\t\t\t<ul class="cookie-banner__list lister push--bottom large-10">\n\t\t\t\t\t' + Object.keys(model.types).map(function (type) {
-            return '<li class="cookie-banner__list-item">\n\t\t\t\t\t\t<input id="cookie-banner__' + type.split(' ')[0].replace(' ', '-') + '" class="' + model.classNames.field + '" value="' + type + '" type="checkbox"' + (model.types[type].checked ? ' checked' : '') + (model.types[type].disabled ? ' disabled' : '') + '> \n\t\t\t\t\t\t<label class="cookie-banner__label gamma" for="cookie-banner__' + type.split(' ')[0].replace(' ', '-') + '">' + type.substr(0, 1).toUpperCase() + type.substr(1) + ' cookies</label>\n\t\t\t\t\t</li>';
-        }).join('') + '\n\t\t\t\t</ul>\n\t\t\t</div>\n\t\t\t<button class="' + model.classNames.btn + '">Continue</button>\n\t\t\t<!--googleon: all-->\n\t\t</section>';
-    },
-
-    consent: {}
+        return '<section role="dialog" aria-live="polite" aria-label="Cookie consent" aria-describedby="preferences-banner__desc" class="' + model.classNames.banner + '">\n\t\t\t<div class="preferences-content">\n\t\t\t\t<div class="wrap">\n\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t<!--googleoff: all-->\n\t\t\t\t\t\t<div id="preferences-banner__desc">\n\t\t\t\t\t\t\t<div class="preferences-banner__heading">This website uses cookies.</div>\n\t\t\t\t\t\t\t<p class="preferences-banner__text">We use cookies to analyse our traffic and to provide social media features. You can choose which categories of cookies you consent to, or accept our recommended settings.\n\t\t\t\t\t\t\t<a class="preferences-banner__link" rel="noopener noreferrer nofollow" href="' + model.policyURL + '"> Find out more about the cookies we use.</a></p>\n\t\t\t\t\t\t\t<ul class="preferences-banner__list">\n\t\t\t\t\t\t\t\t' + Object.keys(model.types).map(function (type) {
+            return '<li class="preferences-banner__list-item">\n\t\t\t\t\t\t\t\t\t<input id="preferences-banner__' + type.split(' ')[0].replace(' ', '-') + '" class="' + model.classNames.field + '" value="' + type + '" type="checkbox"' + (model.types[type].checked ? ' checked' : '') + (model.types[type].disabled ? ' disabled' : '') + '>\n\t\t\t\t\t\t\t\t\t<label class="preferences-banner__label" for="preferences-banner__' + type.split(' ')[0].replace(' ', '-') + '">\n\t\t\t\t\t\t\t\t\t\t' + type.substr(0, 1).toUpperCase() + type.substr(1) + ' cookies\n\t\t\t\t\t\t\t\t\t</label>  \n\t\t\t\t\t\t\t\t</li>';
+        }).join('') + '\n\t\t\t\t\t\t\t</ul>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<button class="' + model.classNames.btn + '">OK</button>\n\t\t\t\t\t\t<!--googleon: all-->\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</section>';
+    }
 };
 
-var apply = function apply(state) {
-    Object.keys(state.consent).forEach(function (key) {
-        state.consent[key] && state.settings.types[key].fns.forEach(function (fn) {
-            return fn(state);
+var apply = function apply() {
+    var perf = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'add';
+    return function (state) {
+        //;_; needs proper enum
+        var appliedState = perf === 'add' ? Object.assign({}, state, { consent: Object.assign({}, state.consent, { performance: true }) }) : perf === 'remove' ? Object.assign({}, state, { consent: Object.assign({}, state.consent, { performance: false }) }) : state;
+
+        Object.keys(appliedState.consent).forEach(function (key) {
+            appliedState.consent[key] && appliedState.settings.types[key] && appliedState.settings.types[key].fns.forEach(function (fn) {
+                return fn(appliedState);
+            });
         });
-    });
+    };
 };
 
 var initialState = function initialState(state, data) {
@@ -135,9 +134,15 @@ var initBanner = function initBanner(Store) {
         TRIGGER_EVENTS.forEach(function (ev) {
             btn.addEventListener(ev, function (e) {
                 if (!shouldExecute(e)) return;
-                Store.update(setConsent, { consent: fields.reduce(function (acc, field) {
-                        return acc[field.value] = field.checked, acc;
-                    }, {}) }, [apply, initUpdateBtn(Store), function () {
+
+                var consent = fields.reduce(function (acc, field) {
+                    return acc[field.value] = field.checked, acc;
+                }, {});
+                Store.update(setConsent, { consent: consent }, !consent.performance ? [writeCookie, function () {
+                    window.setTimeout(function () {
+                        return location.reload();
+                    }, 60);
+                }] : [writeCookie, apply(state.consent.performance ? 'remain' : 'remove'), function () {
                     banner.parentNode.removeChild(banner);
                 }]);
             });
@@ -150,16 +155,19 @@ var initUpdateBtn = function initUpdateBtn(Store) {
         var updateBtnContainer = document.querySelector('.' + state.settings.classNames.updateBtnContainer);
         if (!updateBtnContainer) return;
         var updateBtn = document.querySelector('.' + state.settings.classNames.updateBtn);
-        if (updateBtn) return updateBtn.removeAttribute('disabled');
-        updateBtnContainer.innerHTML = state.settings.updateBtnTemplate(state.settings);
+        if (updateBtn) updateBtn.removeAttribute('disabled');else updateBtnContainer.innerHTML = state.settings.updateBtnTemplate(state.settings);
+        var handler = function handler(e) {
+            if (!shouldExecute(e)) return;
+            Store.update(updateConsent, {}, [initBanner(Store), function () {
+                e.target.setAttribute('disabled', 'disabled');
+                TRIGGER_EVENTS.forEach(function (ev) {
+                    e.target.removeEventListener(ev, handler);
+                });
+            }]);
+        };
 
         TRIGGER_EVENTS.forEach(function (ev) {
-            document.querySelector('.' + state.settings.classNames.updateBtn).addEventListener(ev, function (e) {
-                if (!shouldExecute(e)) return;
-                Store.update(updateConsent, {}, [initBanner(Store), function () {
-                    e.target.setAttribute('disabled', 'disabled');
-                }]);
-            });
+            document.querySelector('.' + state.settings.classNames.updateBtn).addEventListener(ev, handler);
         });
     };
 };
@@ -188,7 +196,10 @@ var factory = function factory(settings) {
 
     var Store = CreateStore();
     var cookies = readCookie(settings);
-    Store.update(initialState, { settings: settings, consent: cookies ? JSON.parse(cookies.value) : {} }, !cookies ? [initBanner(Store)] : [apply, initUpdateBtn(Store)]);
+    Store.update(initialState, {
+        settings: settings,
+        consent: cookies ? JSON.parse(cookies.value) : {}
+    }, [apply(!cookies ? 'add' : 'remain'), cookies ? initUpdateBtn(Store) : initBanner(Store)]);
 };
 
 var index = {

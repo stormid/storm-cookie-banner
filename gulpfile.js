@@ -146,7 +146,8 @@ gulp.task('server', ['js', 'example'], function() {
         notify: false,
         // https: true,
         server: ['example'],
-        tunnel: false
+        tunnel: false,
+        https: true
     });
 
       gulp.watch(['src/**/*'], function(){

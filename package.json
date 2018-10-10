@@ -15,9 +15,8 @@
   "browser": "dist/storm-cookie-banner.standalone.js",
   "keywords": [
     "stormid",
-    "map",
-    "azure",
-    "leaflet",
+    "cookies",
+    "gdpr",
     "component"
   ],
   "scripts": {

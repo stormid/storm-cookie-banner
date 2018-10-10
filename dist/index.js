@@ -1,6 +1,6 @@
 /**
  * @name storm-cookie-banner: 
- * @version 0.1.0: Mon, 06 Aug 2018 09:52:15 GMT
+ * @version 0.2.1: Wed, 10 Oct 2018 20:14:13 GMT
  * @author stormid
  * @license MIT
  */

@@ -13,26 +13,18 @@ export const cookiesEnabled = () => {
       }
 };
 
-export const writeCookie = state => [
-    `${state.settings.name}=${JSON.stringify(state.consent)};`,
+export const writeCookie = state => document.cookie = [
+    `${state.settings.name}=${JSON.stringify(Object.assign({}, state.consent, { intent: state.intent }))};`,
     `expires=${(new Date(new Date().getTime() + (state.settings.expiry*24*60*60*1000))).toGMTString()};`,
     `path=${state.settings.path};`,
     state.settings.domain ? `domain=${state.settings.domain}` : '',
-    state.settings.secure ? `secure=${state.settings.secure}` : ''
+    state.settings.secure ? `secure` : ''
 ].join('');
 
 export const readCookie = settings => {
     const cookie = document.cookie.split('; ').map(part => ({ name: part.split('=')[0], value: part.split('=')[1] })).filter(part => part.name === settings.name)[0];
     return cookie !== undefined ? cookie : false;
 };
-
-export const GTMLoad = code => {
-    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer', code);
-}
 
 export const composeUpdateUIModel = state => {
     return Object.assign({}, state.settings, {
