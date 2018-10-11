@@ -20,14 +20,16 @@ export const initBanner = Store => state => {
                 !consent.performance 
                 ? [ 
                     writeCookie,
-                    () => { window.setTimeout(() => location.reload(), 60); }
+                    () => {
+                        window.setTimeout(() => location.reload(), 60);
+                    }
                 ]
                 : [
                     writeCookie,
                     apply(state.consent.performance ? 'remain' : 'remove'),
                     () => { 
                         banner.parentNode.removeChild(banner);
-                        initUpdateBtn(Store)
+                        initUpdateBtn(Store)(state)
                     }
                 ]
             );

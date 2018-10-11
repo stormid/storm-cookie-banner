@@ -16,10 +16,9 @@ const init = () => {
     });
 };
 
-init();
 
 describe(`Rendering the banner`, () => {
-
+    beforeAll(init);
     it('It should render the cookie banner', async () => {
         expect(document.querySelector('.preferences-banner')).not.toBeNull();
     });
@@ -33,6 +32,7 @@ describe(`Rendering the banner`, () => {
 });
 
 describe(`Accessibility`, () => {
+    beforeAll(init);
     it('The cookie banner should be a dialog', async () => {
         expect(document.querySelector('.preferences-banner').getAttribute('role')).toEqual('dialog');
     });
@@ -52,18 +52,14 @@ describe(`Accessibility`, () => {
 });
 
 describe(`Set consent cookies`, () => {
+    beforeAll(init);
 
     it('Sets a cookie based on consent form', async () => {
         for (const field of document.querySelectorAll('.preferences-banner__field')){
             field.checked = true;
         }
         document.querySelector('.preferences-banner__btn').click();
-        // window.setTimeout(() => {
-            expect(document.cookie).toEqual(`CookiePreferences={"necessary":true,"test":true,"performance":true}`);
-            // expect(document.querySelector('.preferences-banner')).toBeNull();
-            
-        // }, 100);
-        
+        expect(document.cookie).toEqual(`CookiePreferences={"necessary":true,"test":true,"performance":true}`);        
     });
 
     it('Hides the cookie banner', async () => {
@@ -71,34 +67,31 @@ describe(`Set consent cookies`, () => {
         
     });
 
-        // it('Renders the update cookie preferences button', async () => {
-        //     expect(document.querySelector('.preferences-banner__update-btn')).not.toBeNull();
-        // });
+    it('Renders the update cookie preferences button', async () => {
+        expect(document.querySelector('.preferences-banner__update-btn')).not.toBeNull();
+    });
 
 });
 
-// describe(`Update consent cookies`, () => {
-//     it('Show cookie banner to update consent', async () => {
-//         document.querySelector('.preferences-banner__btn').click(); 
-//         window.setTimeout(() => { 
-//             document.querySelector('.preference-banner__update-btn').click();
-//             window.setTimeout(() => {
-//                 expect(document.querySelector('.preferences-banner__update-btn')).not.toBeNull();
-//             }, 0);
-//         }, 0);
-//     });
+describe(`Update consent cookies`, () => {
+    beforeAll(init);
+
+    it('Show cookie banner to update consent', async () => {
+        document.querySelector('.preferences-banner__update-btn').click();
+        expect(document.querySelector('.preferences-banner')).not.toBeNull();
+    });
     
-//     it('Updates a cookie based on consent form', async () => {
-//         for (const field of document.querySelectorAll('.preferences-banner__field')){
-//             field.checked = (field.value !== 'test');
-//         }
-//         document.querySelector('.preferences-banner__btn').click();
+    it('Updates a cookie based on consent form', async () => {
+        for (const field of document.querySelectorAll('.preferences-banner__field')){
+            field.checked = (field.value !== 'test');
+        }
+        document.querySelector('.preferences-banner__btn').click();
 
-//         expect(document.cookie).toEqual(`CookiePreferences={"necessary":true,"preference":true,"test":false}`);
-//     });
+        expect(document.cookie).toEqual(`CookiePreferences={"necessary":true,"test":false,"performance":true}`);
+    });
 
-//     it('Hides the cookie banner', async () => {
-//         expect(document.querySelector('.preferences-banner')).toBeNull();
-//     });
+    it('Hides the cookie banner', async () => {
+        expect(document.querySelector('.preferences-banner')).toBeNull();
+    });
 
-// });
+});
