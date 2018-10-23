@@ -29,14 +29,6 @@ CookieBanner.init({
                  }
             ]
         },
-        'performance': {
-            checked: true,
-            fns: [
-                model => { 
-                    //function that depends upon or creates a 'performance' cookie
-                }
-            ]
-        },
         'advertising and marketing': {
             checked: false,
             fns: [
