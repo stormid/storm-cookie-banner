@@ -38,9 +38,7 @@ export const initBanner = Store => state => {
 };
 
 export const initUpdateBtn = Store => state => {
-    console.log('init btn');
     const updateBtnContainer = document.querySelector(`.${state.settings.classNames.updateBtnContainer}`);
-    console.log('Attemping to render...');
     if(!updateBtnContainer) return;
     const updateBtn = document.querySelector(`.${state.settings.classNames.updateBtn}`);
     if(updateBtn) updateBtn.removeAttribute('disabled');

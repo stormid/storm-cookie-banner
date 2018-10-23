@@ -1,6 +1,6 @@
 /**
  * @name storm-cookie-banner: 
- * @version 0.2.1: Thu, 11 Oct 2018 08:01:49 GMT
+ * @version 0.3.0: Tue, 23 Oct 2018 09:39:59 GMT
  * @author stormid
  * @license MIT
  */
@@ -153,9 +153,7 @@ var initBanner = function initBanner(Store) {
 
 var initUpdateBtn = function initUpdateBtn(Store) {
     return function (state) {
-        console.log('init btn');
         var updateBtnContainer = document.querySelector('.' + state.settings.classNames.updateBtnContainer);
-        console.log('Attemping to render...');
         if (!updateBtnContainer) return;
         var updateBtn = document.querySelector('.' + state.settings.classNames.updateBtn);
         if (updateBtn) updateBtn.removeAttribute('disabled');else updateBtnContainer.innerHTML = state.settings.updateBtnTemplate(state.settings);
