@@ -26,6 +26,25 @@ export const readCookie = settings => {
     return cookie !== undefined ? cookie : false;
 };
 
+const updateCookie = state => model => document.cookie = [
+    `${model.name}=${model.value};`,
+    `expires=${model.expiry};`,
+    `path=${state.settings.path};`,
+    state.settings.domain ? `domain=${state.settings.domain};` : '',
+    state.settings.secure ? `secure` : ''
+].join('');
+
+export const deleteCookies = state => {
+    document.cookie
+        .split('; ')
+        .map(part => ({ 
+            name: part.split('=')[0],
+            value: part.split('=')[1],
+            expiry: 'Thu, 01 Jan 1970 00:00:01 GMT'
+        }))
+        .map(updateCookie(state));
+};
+
 export const composeUpdateUIModel = state => {
     return Object.assign({}, state.settings, {
         types: Object.keys(state.settings.types).reduce((acc, type) => {

@@ -1,4 +1,4 @@
-import { composeUpdateUIModel, shouldExecute, writeCookie } from './utils';
+import { composeUpdateUIModel, shouldExecute, writeCookie, deleteCookies } from './utils';
 import { TRIGGER_EVENTS } from './constants';
 import { apply } from './consent';
 import { setConsent, updateConsent } from './reducers';
@@ -18,7 +18,8 @@ export const initBanner = Store => state => {
                 setConsent,
                 { consent },
                 !consent.performance 
-                ? [ 
+                ? [
+                    deleteCookies,
                     writeCookie,
                     () => {
                         window.setTimeout(() => location.reload(), 60);

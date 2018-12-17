@@ -1,6 +1,6 @@
 /**
  * @name storm-cookie-banner: 
- * @version 0.3.0: Tue, 23 Oct 2018 09:39:59 GMT
+ * @version 0.3.0: Mon, 17 Dec 2018 11:58:36 GMT
  * @author stormid
  * @license MIT
  */
@@ -50,6 +50,22 @@ var readCookie = function readCookie(settings) {
         return part.name === settings.name;
     })[0];
     return cookie !== undefined ? cookie : false;
+};
+
+var updateCookie = function updateCookie(state) {
+    return function (model) {
+        return document.cookie = [model.name + '=' + model.value + ';', 'expires=' + model.expiry + ';', 'path=' + state.settings.path + ';', state.settings.domain ? 'domain=' + state.settings.domain + ';' : '', state.settings.secure ? 'secure' : ''].join('');
+    };
+};
+
+var deleteCookies = function deleteCookies(state) {
+    document.cookie.split('; ').map(function (part) {
+        return {
+            name: part.split('=')[0],
+            value: part.split('=')[1],
+            expiry: 'Thu, 01 Jan 1970 00:00:01 GMT'
+        };
+    }).map(updateCookie(state));
 };
 
 var composeUpdateUIModel = function composeUpdateUIModel(state) {
@@ -138,7 +154,7 @@ var initBanner = function initBanner(Store) {
                 var consent = fields.reduce(function (acc, field) {
                     return acc[field.value] = field.checked, acc;
                 }, {});
-                Store.update(setConsent, { consent: consent }, !consent.performance ? [writeCookie, function () {
+                Store.update(setConsent, { consent: consent }, !consent.performance ? [deleteCookies, writeCookie, function () {
                     window.setTimeout(function () {
                         return location.reload();
                     }, 60);
