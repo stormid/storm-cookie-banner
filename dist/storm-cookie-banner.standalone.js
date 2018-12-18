@@ -1,6 +1,6 @@
 /**
  * @name storm-cookie-banner: 
- * @version 0.3.0: Mon, 17 Dec 2018 11:58:36 GMT
+ * @version 0.3.1: Tue, 18 Dec 2018 08:53:47 GMT
  * @author stormid
  * @license MIT
  */
@@ -81,8 +81,8 @@ var composeUpdateUIModel = function composeUpdateUIModel(state) {
     });
 };
 
-var shouldExecute = function shouldExecute(e) {
-    return !!e.keyCode && !TRIGGER_KEYCODES.includes(e.keyCode) || !(e.which === 3 || e.button === 2);
+var shouldReturn = function shouldReturn(e) {
+    return !!e.keyCode && !~TRIGGER_KEYCODES.indexOf(e.keyCode) || e.which && e.which === 3;
 };
 
 var defaults = {
@@ -149,7 +149,7 @@ var initBanner = function initBanner(Store) {
 
         TRIGGER_EVENTS.forEach(function (ev) {
             btn.addEventListener(ev, function (e) {
-                if (!shouldExecute(e)) return;
+                if (shouldReturn(e)) return;
 
                 var consent = fields.reduce(function (acc, field) {
                     return acc[field.value] = field.checked, acc;
@@ -174,7 +174,7 @@ var initUpdateBtn = function initUpdateBtn(Store) {
         var updateBtn = document.querySelector('.' + state.settings.classNames.updateBtn);
         if (updateBtn) updateBtn.removeAttribute('disabled');else updateBtnContainer.innerHTML = state.settings.updateBtnTemplate(state.settings);
         var handler = function handler(e) {
-            if (!shouldExecute(e)) return;
+            if (shouldReturn(e)) return;
             Store.update(updateConsent, {}, [initBanner(Store), function () {
                 e.target.setAttribute('disabled', 'disabled');
                 TRIGGER_EVENTS.forEach(function (ev) {

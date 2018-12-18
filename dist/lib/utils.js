@@ -58,4 +58,4 @@ export const composeUpdateUIModel = state => {
     })
 };
 
-export const shouldExecute = e => (!!e.keyCode && !TRIGGER_KEYCODES.includes(e.keyCode)) || !(e.which === 3 || e.button === 2);
+export const shouldReturn = e => (!!e.keyCode && !~TRIGGER_KEYCODES.indexOf(e.keyCode) || (e.which && e.which === 3));

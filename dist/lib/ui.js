@@ -1,4 +1,4 @@
-import { composeUpdateUIModel, shouldExecute, writeCookie, deleteCookies } from './utils';
+import { composeUpdateUIModel, shouldReturn, writeCookie, deleteCookies } from './utils';
 import { TRIGGER_EVENTS } from './constants';
 import { apply } from './consent';
 import { setConsent, updateConsent } from './reducers';
@@ -11,7 +11,7 @@ export const initBanner = Store => state => {
 
     TRIGGER_EVENTS.forEach(ev => {
         btn.addEventListener(ev, e => {
-            if(!shouldExecute(e)) return;
+            if(shouldReturn(e)) return;
 
             const consent = fields.reduce((acc, field) => { return acc[field.value] = field.checked, acc }, {});
             Store.update(
@@ -45,7 +45,7 @@ export const initUpdateBtn = Store => state => {
     if(updateBtn) updateBtn.removeAttribute('disabled');
     else updateBtnContainer.innerHTML = state.settings.updateBtnTemplate(state.settings);
     const handler = e => {
-        if(!shouldExecute(e)) return;
+        if(shouldReturn(e)) return;
         Store.update(updateConsent, {}, [ initBanner(Store), () => { 
             e.target.setAttribute('disabled', 'disabled');
             TRIGGER_EVENTS.forEach(ev => {
