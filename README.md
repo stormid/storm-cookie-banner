@@ -5,7 +5,7 @@ Cookie banner that can categorise cookies and conditionally invoke cookie-relian
 [![npm version](https://badge.fury.io/js/storm-cookie-banner.svg)](https://badge.fury.io/js/storm-cookie-banner)
 
 ## Example
-[https://stormid.github.io/storm-cookie-banner](https://mjbp.github.io/storm-cookie-banner)
+[https://stormid.github.io/storm-cookie-banner](https://stormid.github.io/storm-cookie-banner)
 
 ## Usage
 Cookie management works by categorising cookies and the functions that initialise them, encapsulating them in a configuration object.
