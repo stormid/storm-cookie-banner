@@ -1,6 +1,6 @@
 /**
  * @name storm-cookie-banner: 
- * @version 0.3.1: Tue, 18 Dec 2018 08:53:47 GMT
+ * @version 0.3.2: Mon, 01 Apr 2019 15:53:16 GMT
  * @author stormid
  * @license MIT
  */
@@ -27,6 +27,13 @@ var TRIGGER_EVENTS = window.PointerEvent ? ['pointerup', 'keydown'] : ['ontouchs
 
 var TRIGGER_KEYCODES = [13, 32];
 
+var acquireDomain = function acquireDomain() {
+    if (window.location.hostname) return window.location.hostname === 'localhost' ? window.location.hostname : '.' + window.location.hostname;
+    var url = window.location.toString().split('://')[1].replace('www');
+    var domain = '.' + (url[url.length - 1] === '/' ? url.substr(0, -1) : url);
+    return domain === 'localhost' ? domain : '.' + domain;
+};
+
 //Modernizr cookie test
 var cookiesEnabled = function cookiesEnabled() {
     try {
@@ -40,7 +47,7 @@ var cookiesEnabled = function cookiesEnabled() {
 };
 
 var writeCookie = function writeCookie(state) {
-    return document.cookie = [state.settings.name + '=' + JSON.stringify(Object.assign({}, state.consent, { intent: state.intent })) + ';', 'expires=' + new Date(new Date().getTime() + state.settings.expiry * 24 * 60 * 60 * 1000).toGMTString() + ';', 'path=' + state.settings.path + ';', state.settings.domain ? 'domain=' + state.settings.domain : '', state.settings.secure ? 'secure' : ''].join('');
+    return document.cookie = [state.settings.name + '=' + JSON.stringify(Object.assign({}, state.consent, { intent: state.intent })) + ';', 'expires=' + new Date(new Date().getTime() + state.settings.expiry * 24 * 60 * 60 * 1000).toGMTString() + ';', 'path=' + state.settings.path + ';', 'domain=' + (state.settings.domain ? state.settings.domain : acquireDomain()) + ';', state.settings.secure ? 'secure' : ''].join('');
 };
 
 var readCookie = function readCookie(settings) {
@@ -54,7 +61,7 @@ var readCookie = function readCookie(settings) {
 
 var updateCookie = function updateCookie(state) {
     return function (model) {
-        return document.cookie = [model.name + '=' + model.value + ';', 'expires=' + model.expiry + ';', 'path=' + state.settings.path + ';', state.settings.domain ? 'domain=' + state.settings.domain + ';' : '', state.settings.secure ? 'secure' : ''].join('');
+        document.cookie = [model.name + '=' + model.value + ';', 'expires=' + model.expiry + ';', 'path=' + state.settings.path + ';', 'domain=' + (state.settings.domain ? state.settings.domain : acquireDomain()) + ';', state.settings.secure ? 'secure' : ''].join('');
     };
 };
 
@@ -104,7 +111,8 @@ var defaults = {
         btn: 'preferences-banner__btn',
         field: 'preferences-banner__field',
         updateBtnContainer: 'preferences-banner__update',
-        updateBtn: 'preferences-banner__update-btn'
+        updateBtn: 'preferences-banner__update-btn',
+        close: 'preference-banner__close'
     },
     updateBtnTemplate: function updateBtnTemplate(model) {
         return '<button class="' + model.classNames.updateBtn + '">Update cookie preferences</button>';
@@ -112,7 +120,7 @@ var defaults = {
     bannerTemplate: function bannerTemplate(model) {
         return '<section role="dialog" aria-live="polite" aria-label="Cookie consent" aria-describedby="preferences-banner__desc" class="' + model.classNames.banner + '">\n\t\t\t<div class="preferences-content">\n\t\t\t\t<div class="wrap">\n\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t<!--googleoff: all-->\n\t\t\t\t\t\t<div id="preferences-banner__desc">\n\t\t\t\t\t\t\t<div class="preferences-banner__heading">This website uses cookies.</div>\n\t\t\t\t\t\t\t<p class="preferences-banner__text">We use cookies to analyse our traffic and to provide social media features. You can choose which categories of cookies you consent to, or accept our recommended settings.\n\t\t\t\t\t\t\t<a class="preferences-banner__link" rel="noopener noreferrer nofollow" href="' + model.policyURL + '"> Find out more about the cookies we use.</a></p>\n\t\t\t\t\t\t\t<ul class="preferences-banner__list">\n\t\t\t\t\t\t\t\t' + Object.keys(model.types).map(function (type) {
             return '<li class="preferences-banner__list-item">\n\t\t\t\t\t\t\t\t\t<input id="preferences-banner__' + type.split(' ')[0].replace(' ', '-') + '" class="' + model.classNames.field + '" value="' + type + '" type="checkbox"' + (model.types[type].checked ? ' checked' : '') + (model.types[type].disabled ? ' disabled' : '') + '>\n\t\t\t\t\t\t\t\t\t<label class="preferences-banner__label" for="preferences-banner__' + type.split(' ')[0].replace(' ', '-') + '">\n\t\t\t\t\t\t\t\t\t\t' + type.substr(0, 1).toUpperCase() + type.substr(1) + ' cookies\n\t\t\t\t\t\t\t\t\t</label>  \n\t\t\t\t\t\t\t\t</li>';
-        }).join('') + '\n\t\t\t\t\t\t\t</ul>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<button class="' + model.classNames.btn + '">OK</button>\n\t\t\t\t\t\t<!--googleon: all-->\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</section>';
+        }).join('') + '\n\t\t\t\t\t\t\t</ul>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<button class="' + model.classNames.btn + '">OK</button>\n\t\t\t\t\t\t<button class="' + model.classNames.close + '">                        \n\t\t\t\t\t\t\t<svg focusable="false" class="preference-banner__close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/><path d="M0 0h24v24H0z" fill="none"/></svg>\n\t\t\t\t\t\t</button>\n\t\t\t\t\t\t<!--googleon: all-->\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</section>';
     }
 };
 
@@ -146,19 +154,32 @@ var initBanner = function initBanner(Store) {
         var fields = [].slice.call(document.querySelectorAll('.' + state.settings.classNames.field));
         var banner = document.querySelector('.' + state.settings.classNames.banner);
         var btn = document.querySelector('.' + state.settings.classNames.btn);
+        var closeBtn = document.querySelector('.' + state.settings.classNames.close);
 
         TRIGGER_EVENTS.forEach(function (ev) {
             btn.addEventListener(ev, function (e) {
                 if (shouldReturn(e)) return;
-
                 var consent = fields.reduce(function (acc, field) {
                     return acc[field.value] = field.checked, acc;
                 }, {});
+
                 Store.update(setConsent, { consent: consent }, !consent.performance ? [deleteCookies, writeCookie, function () {
                     window.setTimeout(function () {
                         return location.reload();
                     }, 60);
                 }] : [writeCookie, apply(state.consent.performance ? 'remain' : 'remove'), function () {
+                    banner.parentNode.removeChild(banner);
+                    initUpdateBtn(Store)(state);
+                }]);
+            });
+            closeBtn.addEventListener(ev, function (e) {
+                if (shouldReturn(e)) return;
+
+                Store.update(setConsent, { consent: Object.keys(state.settings.types).reduce(function (acc, curr) {
+                        acc[curr] = state.settings.types[curr].checked;
+                        return acc;
+                    }, {})
+                }, [writeCookie, apply('remain'), function () {
                     banner.parentNode.removeChild(banner);
                     initUpdateBtn(Store)(state);
                 }]);

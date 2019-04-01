@@ -2,6 +2,7 @@ import CookieBanner from '../../src';
     
 window.addEventListener('DOMContentLoaded', () => {
     CookieBanner.init({
+        secure: true,
         types: {
             'necessary': {
                 fns: [

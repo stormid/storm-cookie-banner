@@ -8,12 +8,13 @@ export const initBanner = Store => state => {
     const fields = [].slice.call(document.querySelectorAll(`.${state.settings.classNames.field}`));
     const banner = document.querySelector(`.${state.settings.classNames.banner}`);
     const btn = document.querySelector(`.${state.settings.classNames.btn}`);
+    const closeBtn = document.querySelector(`.${state.settings.classNames.close}`);
 
     TRIGGER_EVENTS.forEach(ev => {
         btn.addEventListener(ev, e => {
             if(shouldReturn(e)) return;
-
             const consent = fields.reduce((acc, field) => { return acc[field.value] = field.checked, acc }, {});
+
             Store.update(
                 setConsent,
                 { consent },
@@ -28,6 +29,26 @@ export const initBanner = Store => state => {
                 : [
                     writeCookie,
                     apply(state.consent.performance ? 'remain' : 'remove'),
+                    () => { 
+                        banner.parentNode.removeChild(banner);
+                        initUpdateBtn(Store)(state)
+                    }
+                ]
+            );
+        });
+        closeBtn.addEventListener(ev, e => {
+            if(shouldReturn(e)) return;
+
+            Store.update(
+                setConsent,
+                { consent: Object.keys(state.settings.types).reduce((acc, curr) => {
+                        acc[curr] = state.settings.types[curr].checked;
+                        return acc;
+                    }, {})
+                },
+                [
+                    writeCookie,
+                    apply('remain'),
                     () => { 
                         banner.parentNode.removeChild(banner);
                         initUpdateBtn(Store)(state)

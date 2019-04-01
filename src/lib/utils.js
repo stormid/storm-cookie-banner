@@ -1,5 +1,12 @@
 import { TRIGGER_KEYCODES } from './constants';
 
+const acquireDomain = () => {
+    if(window.location.hostname) return window.location.hostname === 'localhost' ? window.location.hostname : `.${window.location.hostname}`;
+    let url = window.location.toString().split('://')[1].replace('www');
+    const domain = `.${(url[url.length - 1] === '/' ? url.substr(0, -1) : url)}`;
+    return domain === 'localhost' ? domain: `.${domain}`;
+};
+
 //Modernizr cookie test
 export const cookiesEnabled = () => {
     try {
@@ -17,7 +24,7 @@ export const writeCookie = state => document.cookie = [
     `${state.settings.name}=${JSON.stringify(Object.assign({}, state.consent, { intent: state.intent }))};`,
     `expires=${(new Date(new Date().getTime() + (state.settings.expiry*24*60*60*1000))).toGMTString()};`,
     `path=${state.settings.path};`,
-    state.settings.domain ? `domain=${state.settings.domain}` : '',
+    `domain=${state.settings.domain ? state.settings.domain : acquireDomain()};`,
     state.settings.secure ? `secure` : ''
 ].join('');
 
@@ -26,22 +33,26 @@ export const readCookie = settings => {
     return cookie !== undefined ? cookie : false;
 };
 
-const updateCookie = state => model => document.cookie = [
-    `${model.name}=${model.value};`,
-    `expires=${model.expiry};`,
-    `path=${state.settings.path};`,
-    state.settings.domain ? `domain=${state.settings.domain};` : '',
-    state.settings.secure ? `secure` : ''
-].join('');
+const updateCookie = state => model => {
+    document.cookie = [
+        `${model.name}=${model.value};`,
+        `expires=${model.expiry};`,
+        `path=${state.settings.path};`,
+        `domain=${state.settings.domain ? state.settings.domain : acquireDomain()};`,
+        state.settings.secure ? `secure` : ''
+    ].join('');
+}
 
 export const deleteCookies = state => {
     document.cookie
         .split('; ')
-        .map(part => ({ 
-            name: part.split('=')[0],
-            value: part.split('=')[1],
-            expiry: 'Thu, 01 Jan 1970 00:00:01 GMT'
-        }))
+        .map(part => {
+            return {
+                name: part.split('=')[0],
+                value: part.split('=')[1],
+                expiry: 'Thu, 01 Jan 1970 00:00:01 GMT'
+            };
+        })
         .map(updateCookie(state));
 };
 

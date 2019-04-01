@@ -19,7 +19,8 @@ export default {
 		btn: 'preferences-banner__btn',
 		field: 'preferences-banner__field',
 		updateBtnContainer: 'preferences-banner__update',
-		updateBtn: 'preferences-banner__update-btn'
+		updateBtn: 'preferences-banner__update-btn',
+		close: 'preference-banner__close'
 	},
 	updateBtnTemplate(model){
 		return `<button class="${model.classNames.updateBtn}">Update cookie preferences</button>`
@@ -44,6 +45,9 @@ export default {
 							</ul>
 						</div>
 						<button class="${model.classNames.btn}">OK</button>
+						<button class="${model.classNames.close}">                        
+							<svg focusable="false" class="preference-banner__close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+						</button>
 						<!--googleon: all-->
 					</div>
 				</div>
