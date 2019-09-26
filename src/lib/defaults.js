@@ -24,9 +24,6 @@ export default {
 		description: 'privacy-banner__form-description'
 	},
 	savedMessage: 'Your settings have been saved.',
-	updateBtnTemplate(model){
-		return `<button class="${model.classNames.updateBtn}">Update privacy preferences</button>`
-	},
 	bannerTemplate(model){
 		return `<section role="dialog" aria-live="polite" aria-label="You privacy" class="${model.classNames.banner}">
 			<div class="privacy-content">
@@ -45,20 +42,20 @@ export default {
 		</section>`;
 	},
 	messageTemplate(model){
-		return `<div class="privacy-banner__form-msg" aria-role="alert">${model.settings.savedMessage}</div>`
+		return `<div class="${model.settings.classNames.formMessage}" aria-role="alert">${model.settings.savedMessage}</div>`
 	},
 	formTemplate(model){
 		return `<form class="${model.settings.classNames.form}" novalidate>
 				${Object.keys(model.settings.types).map(type => `<fieldset class="${model.settings.classNames.fieldset}">
 				<legend class="${model.settings.classNames.legend}">
-					<span class="block alpha primary-font-medium push-half--bottom ${model.settings.classNames.title}">${model.settings.types[type].title}</span>
-					<span class="block beta push-half--bottom ${model.settings.classNames.description}">${model.settings.types[type].description}</span>
+					<span class="${model.settings.classNames.title}">${model.settings.types[type].title}</span>
+					<span class="${model.settings.classNames.description}">${model.settings.types[type].description}</span>
 				</legend>
 				<div class="form-row">
 					<div class="relative">
-						<label class="form-control-label form-control-label--checkbox">
+						<label class="privacy-banner__label">
 							<input
-								class="form-row-checkbox__checkbox form-row-checkbox__checkbox--radio ${model.settings.classNames.field}"
+								class="${model.settings.classNames.field}"
 								type="radio"
 								name="privacy-${type.split(' ')[0].replace(' ', '-')}"
 								value="1"
@@ -70,9 +67,9 @@ export default {
 				</div>
 				<div class="form-row">
 					<div class="relative">
-						<label class="form-control-label form-control-label--checkbox">
+						<label class="privacy-banner__label">
 							<input
-								class="form-row-checkbox__checkbox form-row-checkbox__checkbox--radio ${model.settings.classNames.field}"
+								class="${model.settings.classNames.field}"
 								type="radio"
 								name="privacy-${type.split(' ')[0].replace(' ', '-')}"
 								value="0"
@@ -83,7 +80,7 @@ export default {
 					</div>
 				</div>
 			</fieldset>`).join('')}
-			<button class="btn btn--primary ${model.settings.classNames.submitBtn}"${Object.keys(model.consent).length === 0 ? ` disabled` : ''}>Save my settings</button>
+			<button class="${model.settings.classNames.submitBtn}"${Object.keys(model.consent).length === 0 ? ` disabled` : ''}>Save my settings</button>
 		</form>`;
 	}
 };
