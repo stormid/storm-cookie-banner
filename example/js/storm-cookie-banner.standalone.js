@@ -1,6 +1,6 @@
 /**
  * @name storm-cookie-banner: 
- * @version 0.4.0: Thu, 26 Sep 2019 11:51:07 GMT
+ * @version 0.4.0: Thu, 26 Sep 2019 11:26:03 GMT
  * @author stormid
  * @license MIT
  */
@@ -121,7 +121,7 @@ var removeSubdomain = function removeSubdomain(s) {
 };
 
 var defaults = {
-    name: '.CookiePreferences',
+    name: '.PrivacyPreferences',
     path: '',
     domain: window.location.hostname === 'localhost' ? '' : '.' + removeSubdomain(window.location.hostname),
     secure: true,

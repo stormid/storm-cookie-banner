@@ -1,26 +1,65 @@
 import CookieBanner from '../../src';
+import { writeCookie } from '../../src/lib/utils';
+import Load from 'storm-load';
     
 window.addEventListener('DOMContentLoaded', () => {
-    CookieBanner.init({
-        secure: true,
-        types: {
-            'necessary': {
-                fns: [
-                    () => { console.log('Necessary fn'); },
-                ]
-            },
-            'performance': {
-                checked: true,
-                fns: [
-                    () => { console.log('Performance fn'); }
-                ]
-            },
-            'advertising and marketing': {
-                checked: false,
-                fns: [
-                    () => { console.log('Advertising and marketing fn'); }
-                ]
-            }
-        }
-    });
+    Load('./js/storm-cookie-banner.standalone.js')
+        .then(() => {
+            StormCookieBanner.init({
+                secure: true,
+                necessary: [ () => { 
+                    console.log('Necessary fn');
+                    writeCookie({
+                        settings: {
+                            name: '.Test.NecessaryCookie',
+                            expiry: 3
+                        },
+                        consent: '666',
+                    });
+                } ],
+                types: {
+                    'performance': {
+                        title: 'Performance preferences',
+                        description: 'Performance cookies are used to measure the performance of our website and make improvements. Your personal data is not identified.',
+                        labels: {
+                            yes: 'Pages you visit and actions you take will be measured and used to improve the service',
+                            no: 'Pages you visit and actions you take will not be measured and used to improve the service'
+                        },
+                        fns: [
+                            () => { 
+                                console.log('Performance fn');
+                                writeCookie({
+                                    settings: {
+                                        name: '.Test.PerformanceCookie',
+                                        expiry: 3
+                                    },
+                                    consent: '666',
+                                });
+                            }
+                        ]
+                    },
+                    'ads': {
+                        title: 'Set your personalised ads preferences',
+                        description: 'We work with advertising partners to show you ads for our products and services across the web.  You can choose whether we collect and share that data with our partners below. ',
+                        labels: {
+                            yes: 'Our partners might serve you ads knowing you have visited our website',
+                            no: 'Our partners will still serve you ads, but they will not know you have visited out website'
+                        },
+                        fns: [
+                            () => { 
+                                console.log('Ads fn');
+                                writeCookie({
+                                    settings: {
+                                        name: '.Test.AdsCookie',
+                                        expiry: 3
+                                    },
+                                    consent: '666',
+                                });
+                            }
+                        ]
+                    }
+                }
+            });
+        });
+    
 });
