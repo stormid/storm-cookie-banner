@@ -14,6 +14,7 @@ function _interopRequireDefault(obj) {
 window.addEventListener('DOMContentLoaded', function () {
     _src2.default.init({
         secure: true,
+        domain: '',
         policyURL: '/',
         necessary: [function () {
             console.log('Necessary fn');
