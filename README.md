@@ -1,6 +1,6 @@
 # Storm cookie banner
 
-Cookie banner that can categorise cookies and conditionally invoke functionality that generates cookies based on user-consent.
+Cookie banner that can categorise cookies and conditionally invoke functionality that generates cookies based on user consent.
 
 [![npm version](https://badge.fury.io/js/storm-cookie-banner.svg)](https://badge.fury.io/js/storm-cookie-banner)
 
