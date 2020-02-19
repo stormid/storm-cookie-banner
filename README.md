@@ -61,16 +61,6 @@ CookieBanner.init({
         }
 });
 ```
-or aynchronous browser loading (use the .standalone version in the /dist folder)
-```
-import Load from 'storm-load';
-
-Load('/content/js/async/storm-cookie-banner.standalone.js')
-    .then(() => {
-        StormCookieBanner.init({
-	    types: { ... as es6 example }
-	});
-```
 
 
 ## Default options

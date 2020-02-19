@@ -12,7 +12,10 @@
     "url": "https://github.com/mjbp/storm-cookie-banner/issues"
   },
   "main": "dist/index.js",
-  "browser": "dist/storm-cookie-banner.standalone.js",
+  "source": "src/index.js",
+  "module": "dist/index.modern.mjs",
+  "unpkg": "dist/index.umd.js",
+  "browser": "dist/index.umd.js",
   "keywords": [
     "stormid",
     "cookies",
@@ -20,51 +23,26 @@
     "component"
   ],
   "scripts": {
-    "build": "node_modules/.bin/gulp build",
-    "serve": "node_modules/.bin/gulp server",
-    "start": "node_modules/.bin/gulp server",
-    "test": "node_modules/.bin/jest"
-  },
-  "jest": {
-    "testURL": "http://localhost"
-  },
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "env"
-          ]
-        }
-      ]
-    ]
+    "build": "microbundle --name CookieBanner",
+    "test": "node_modules/.bin/jest --coverage",
+    "dev": "webpack-dev-server --config example/webpack.config.js --mode development",
+    "prod": "webpack --config example/webpack.config.js --mode production"
   },
   "devDependencies": {
-    "babel": "^6.5.2",
-    "babel-core": "^6.7.2",
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-preset-env": "^1.6.0",
-    "babelify": "^7.3.0",
-    "browser-sync": "^2.17.5",
-    "browserify": "^13.1.0",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
-    "gulp-gh-pages": "^0.5.4",
-    "gulp-header": "^1.2.2",
-    "gulp-notify": "^2.2.0",
-    "gulp-plumber": "^1.1.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-rollup": "^2.11.0",
-    "gulp-uglify": "^2.0.0",
-    "gulp-wrap-umd": "^0.2.1",
+    "@babel/core": "^7.7.4",
+    "@babel/node": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-eslint": "^10.0.3",
+    "babel-jest": "^24.9.0",
+    "babel-loader": "^8.0.6",
+    "clean-webpack-plugin": "^1.0.0",
+    "html-webpack-plugin": "^3.2.0",
+    "isomorphic-fetch": "^2.2.1",
     "jest": "^24.9.0",
-    "object-assign": "^4.0.1",
-    "rollup": "^0.41.6",
-    "rollup-plugin-commonjs": "^8.0.2",
-    "rollup-plugin-node-resolve": "^3.0.0",
-    "run-sequence": "^1.1.0",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
+    "microbundle": "^0.11.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0"
   }
 }
