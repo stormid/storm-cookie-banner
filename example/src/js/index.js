@@ -1,5 +1,5 @@
-import CookieBanner from '../../src';
-import { writeCookie } from '../../src/lib/utils';
+import CookieBanner from '../../../src';
+import { writeCookie } from '../../../src/lib/utils';
     
 window.addEventListener('DOMContentLoaded', () => {
     CookieBanner.init({
