@@ -8,6 +8,7 @@ const init = () => {
         secure: false,
         types: { 
             'test': {
+                suggested: true,
                 title: 'Test title',
                 description: 'Test description',
                 labels: {
@@ -73,6 +74,19 @@ describe(`Privacy banner > DOM > form interactions`, () => {
         expect(document.cookie).toEqual(`${defaults.name}={"test":1,"performance":1}`);
         expect(document.querySelector(`.${defaults.classNames.banner}`)).toBeNull();
  
+    });
+});
+
+describe('Privacy banner > DOM > form > pre-select', () => {
+    beforeAll(init);
+
+    it('Test type should be pre-selected', async () => {
+        expect(document.querySelector('input[name="privacy-test"][value="1"]')).getAttribute('checked').not.toBeNull();
+    });
+
+    it('Performance type should not be pre-selected', async () => {
+        expect(document.querySelector('input[name="privacy-performance"][value="1"]')).getAttribute('checked').toBeNull();
+        expect(document.querySelector('input[name="privacy-performance"][value="0"]')).getAttribute('checked').toBeNull();
     });
 });
 
