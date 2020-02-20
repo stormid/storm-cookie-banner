@@ -10,7 +10,7 @@ export const initBanner = Store => state => {
 
     TRIGGER_EVENTS.forEach(ev => {
         acceptBtn.addEventListener(ev, e => {
-            if(shouldReturn(e)) return;
+            if (shouldReturn(e)) return;
 
             Store.update(
                 updateConsent,
@@ -31,35 +31,44 @@ export const initBanner = Store => state => {
 
 const removeBanner = banner => () => (banner && banner.parentNode) && banner.parentNode.removeChild(banner);
 
+const suggestedConsent = state => Object.keys(state.consent).length > 0
+    ? state
+    : Object.assign({}, state, {
+        consent: Object.keys(state.settings.types).reduce((acc, type) => {
+            if (state.settings.types[type].suggested) acc[type] = 1;
+            return acc;
+        }, {})
+    });
+
 export const initForm = Store => state => {
     const formContainer = document.querySelector(`.${state.settings.classNames.formContainer}`);
-    if(!formContainer) return;
+    if (!formContainer) return;
 
-    formContainer.innerHTML = state.settings.formTemplate(state);
+    formContainer.innerHTML = state.settings.formTemplate(suggestedConsent(state));
 
     const form = document.querySelector(`.${state.settings.classNames.form}`);
     const banner = document.querySelector(`.${state.settings.classNames.banner}`);
     const button = document.querySelector(`.${state.settings.classNames.submitBtn}`);
     const groups = [].slice.call(document.querySelectorAll(`.${state.settings.classNames.field}`)).reduce((groups, field) => {
         const groupName = field.getAttribute('name').replace('privacy-', '');
-        if(groups[groupName]) groups[groupName].push(field);
+        if (groups[groupName]) groups[groupName].push(field);
         else groups[groupName] = [field];
         return groups;
     }, {});
 
     const extractConsent = () => Object.keys(groups).reduce((acc, key) => {
         const value = groups[key].reduce(groupValueReducer, '');
-        if(value) acc[key] = parseInt(value);
+        if (value) acc[key] = parseInt(value);
         return acc;
     }, {});
 
     const enableButton = e => {
-        if(Object.keys(extractConsent()).length !== Object.keys(groups).length) return;
+        if (Object.keys(extractConsent()).length !== Object.keys(groups).length) return;
         button.removeAttribute('disabled');
         form.removeEventListener('change', enableButton);
     };
     button.hasAttribute('disabled') && form.addEventListener('change', enableButton);
-    
+
     form.addEventListener('submit', e => {
         e.preventDefault();
         Store.update(
