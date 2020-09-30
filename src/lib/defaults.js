@@ -31,8 +31,10 @@ export default {
 					<div class="row">
 						<!--googleoff: all-->
 						<div class="privacy-banner__title">Cookies</div>
+						<div class="privacy-banner__bd">
 						<p>We use cookies to improve your experience on our site and show you personalised advertising.</p>
 						<p>Find out more from our <a class="privacy-banner__link" rel="noopener noreferrer nofollow" href="/privacy-policy">privacy policy</a> and <a class="privacy-banner__link" rel="noopener noreferrer nofollow" href="${model.policyURL}">cookie policy</a>.</p>
+						</div>
 						<button class="btn btn--primary ${model.classNames.acceptBtn}">Accept and close</button>
 						<a class="privacy-banner__link" rel="noopener noreferrer nofollow" href="${model.policyURL}">Your options</a>
 						<!--googleon: all-->
